@@ -1,0 +1,13 @@
+#nprogress .bar {
+	height: 4px !important;
+	background-color: orangered !important;
+}
+
+.nav a {
+	border: none !important;
+	opacity: 0.8;
+}
+
+.nav a:hover {
+	opacity: 1;
+}
