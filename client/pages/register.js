@@ -1,5 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import axios from "axios";
+import { showSuccessMessage, showErrorMessage } from "../helpers/alerts";
+import { API } from "../config";
+import { isAuth } from "../helpers/auth";
+import Router from "next/router";
 
 const Register = () => {
 	const [state, setState] = useState({
@@ -13,6 +18,10 @@ const Register = () => {
 
 	const { name, email, password, error, success, buttonText } = state;
 
+	useEffect(() => {
+		isAuth() && Router.push("/");
+	}, []);
+
 	const handleChange = (name) => (event) => {
 		setState({
 			...state,
@@ -23,9 +32,30 @@ const Register = () => {
 		});
 	};
 
-	const handleSubmit = (event) => {
+	const handleSubmit = async (event) => {
 		event.preventDefault();
-		console.table({ name, email, password });
+		setState({ ...state, buttonText: "Registering.." });
+		try {
+			const response = await axios.post(`${API}/register`, {
+				name,
+				email,
+				password,
+			});
+			setState({
+				...state,
+				name: "",
+				email: "",
+				password: "",
+				buttonText: "Submitted",
+				success: response.data.message,
+			});
+		} catch (error) {
+			setState({
+				...state,
+				buttonText: "Register",
+				error: error.response.data.error,
+			});
+		}
 	};
 
 	const registerForm = () => (
@@ -69,6 +99,8 @@ const Register = () => {
 		<Layout>
 			<div className="col-md-6 offset-md-3">
 				<h1 className="mb-4">Register</h1>
+				{success && showSuccessMessage(success)}
+				{error && showErrorMessage(error)}
 				{registerForm()}
 			</div>
 		</Layout>
